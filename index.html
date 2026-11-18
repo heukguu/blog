@@ -4,380 +4,587 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>이것저것</title>
-  <!-- 나눔명조 폰트 불러오기 -->
+  <!-- 나눔명조 폰트 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
-  <!-- 스타일링을 위한 Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Supabase 서버 연결 라이브러리 -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body {
-      font-family: 'Nanum Myeongjo', serif;
-      background-color: #fbfbfb;
-      color: #222;
-      line-height: 1.8;
+    :root {
+      --bg: #fbfbfb;
+      --surface: #fff;
+      --text: #222;
+      --sub: #4b5563;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --line-soft: #f1f2f4;
+      --accent: #292b28;
+      --focus: #69755f;
+      --danger: #b91c1c;
+      --ok: #15803d;
+      --pad: 24px;
     }
-    .brunch-container {
-      max-width: 720px;
-      margin: 0 auto;
-    }
-    .hidden { display: none !important; }
-    .admin-tab[aria-current="page"] { background: #292b28; color: #fff; border-color: #292b28; }
-    a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid #69755f; outline-offset: 4px; }
-    .post-content {
-      white-space: pre-wrap;
-      word-break: keep-all;
-    }
-    /* Keep long titles, URLs and filenames inside their available column. */
-    .brunch-container { min-width: 0; }
-    #blog-title, #post-list-section article, #detail-title,
-    .post-content, #footer-bio, #settings-status, #post-status {
-      overflow-wrap: anywhere;
-    }
-    #post-list-section article > div { min-width: 0; }
-    #post-list-section article > img { flex-shrink: 0; }
-    #write-box input, #write-box select, input[type="file"] {
-      min-width: 0;
-      max-width: 100%;
-    }
-    #post-title { flex: 1; }
-    #detail-file-box { gap: 12px; }
-    #detail-file-box > span { min-width: 0; overflow-wrap: anywhere; }
-    #detail-file-link { flex-shrink: 0; white-space: nowrap; }
-    footer .brunch-container > div:first-child,
-    footer .brunch-container > div:first-child > div { min-width: 0; }
-    #footer-profile-img { flex-shrink: 0; }
-    footer .brunch-container > div:last-child { flex-shrink: 0; }
 
+    /* ---------- 기본 ---------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Nanum Myeongjo', serif;
+      font-size: 16px;
+      line-height: 1.8;
+      background: var(--bg);
+      color: var(--text);
+    }
+    h1, h2, p { margin: 0; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { background: none; border: 0; padding: 0; cursor: pointer; }
+    :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+
+    .wrap { width: 100%; max-width: 720px; margin: 0 auto; padding-inline: var(--pad); }
+    .hint { font-size: 12px; line-height: 1.5; color: var(--muted); }
+    .empty { text-align: center; font-size: 14px; color: var(--muted); padding-block: 80px; }
+    .empty .btn { margin-top: 12px; }
+    .status { font-size: 14px; line-height: 1.5; color: var(--sub); }
+    .status:empty { display: none; }
+    .status[data-kind="error"] { color: var(--danger); }
+    .status[data-kind="ok"] { color: var(--ok); }
+
+    /* ---------- 헤더 ---------- */
+    .site-header { position: sticky; top: 0; z-index: 10; background: var(--surface); border-bottom: 1px solid var(--line); }
+    .site-header__bar { display: flex; justify-content: space-between; align-items: center; gap: 8px 16px; padding-block: 20px; }
+    .site-title { min-width: 0; font-size: 24px; font-weight: 700; line-height: 1.4; letter-spacing: -0.025em; overflow-wrap: anywhere; }
+    .site-title:hover { opacity: .7; }
+    .site-actions { display: flex; align-items: center; gap: 14px; flex-shrink: 0; font-size: 13px; color: var(--muted); white-space: nowrap; }
+    .site-actions > * { text-decoration: underline; text-underline-offset: 3px; }
+    .site-actions > *:hover { color: #000; }
+    .category-nav { display: flex; gap: 20px; overflow-x: auto; padding-block: 8px; border-top: 1px solid var(--line-soft); font-size: 14px; scrollbar-width: none; }
+    .category-nav::-webkit-scrollbar { display: none; }
+    .category-nav button { flex-shrink: 0; padding-bottom: 2px; border-bottom: 2px solid transparent; color: var(--muted); white-space: nowrap; }
+    .category-nav button[aria-pressed="true"] { color: #000; font-weight: 700; border-bottom-color: #000; }
+
+    /* ---------- 본문 영역 ---------- */
+    main { flex: 1; padding-block: 40px; }
+    #flash { margin-bottom: 16px; }
+
+    /* 글 목록 */
+    .post-list { display: grid; gap: 40px; }
+    .post-card { position: relative; display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding-bottom: 32px; border-bottom: 1px solid var(--line-soft); }
+    .post-card__body { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+    .post-card__meta, .post-card time { display: block; font-size: 12px; color: var(--muted); }
+    .post-card__meta { margin-bottom: 4px; }
+    .post-card h2 { font-size: 20px; line-height: 1.4; margin-bottom: 8px; }
+    .post-card h2 a::after { content: ''; position: absolute; inset: 0; } /* 카드 전체를 링크로 */
+    .post-card:hover h2 a { text-decoration: underline; }
+    .post-card p { font-size: 14px; line-height: 1.65; color: var(--sub); margin-bottom: 12px; }
+    .post-card img { width: 96px; height: 96px; flex-shrink: 0; object-fit: cover; border: 1px solid var(--line-soft); }
+
+    /* 글 상세 */
+    .post { background: var(--surface); border: 1px solid var(--line-soft); box-shadow: 0 1px 2px rgba(0, 0, 0, .05); padding: 32px; }
+    .back-link { display: inline-block; margin-bottom: 20px; padding-block: 4px; font-size: 12px; color: var(--muted); }
+    .back-link:hover { color: #000; }
+    .post__category { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .post__title { font-size: 30px; line-height: 1.375; margin-bottom: 12px; overflow-wrap: anywhere; }
+    .post__meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-bottom: 16px; margin-bottom: 32px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+    .post__admin { display: flex; gap: 12px; flex-shrink: 0; }
+    .post__admin > * { text-decoration: underline; text-underline-offset: 3px; }
+    #btn-edit { color: #2563eb; }
+    #btn-delete { color: #dc2626; }
+    #btn-delete:disabled { opacity: .5; cursor: wait; }
+    .file-box { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 32px; padding: 12px; background: #f9fafb; border: 1px solid var(--line); font-size: 12px; color: var(--sub); }
+    .file-box > span { min-width: 0; overflow-wrap: anywhere; }
+    .file-box strong { color: #000; }
+    .file-box a { flex-shrink: 0; padding: 4px 12px; background: var(--surface); border: 1px solid #d1d5db; white-space: nowrap; }
+    .file-box a:hover { background: #f3f4f6; }
+    .post__image { height: auto; margin: 0 auto 32px; }
+    .post__content { font-size: 16px; line-height: 2; color: #1f2937; white-space: pre-wrap; word-break: keep-all; overflow-wrap: anywhere; }
+    #detail-status { margin-bottom: 12px; }
+
+    /* ---------- 폼 공통 ---------- */
+    .input { width: 100%; min-width: 0; padding: 9px 10px; border: 1px solid var(--line); border-radius: 0; background: var(--surface); font-size: 14px; }
+    .input:focus { border-color: #000; }
+    textarea.input { min-height: 320px; line-height: 1.7; resize: vertical; }
+    .label { display: block; margin-bottom: 4px; font-size: 12px; color: var(--muted); }
+    .btn { display: inline-block; padding: 9px 22px; background: #000; color: #fff; font-size: 14px; border: 1px solid #000; }
+    .btn:hover { background: #1f2937; }
+    .btn:disabled { opacity: .5; cursor: wait; }
+    .btn--ghost { background: none; color: inherit; border-color: var(--line); }
+    .btn--ghost:hover { background: #f3f4f6; }
+    .btn--block { width: 100%; }
+
+    /* 로그인 */
+    .login { max-width: 384px; margin: 64px auto; padding: 32px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0, 0, 0, .05); }
+    .login h1 { font-size: 24px; margin-bottom: 20px; }
+    .login form { display: grid; gap: 16px; }
+
+    /* 관리 */
+    .admin { display: grid; gap: 20px; margin-bottom: 40px; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+    .tabs a { padding: 8px 16px; border: 1px solid var(--line); font-size: 14px; line-height: 1.5; }
+    .tabs a[aria-current="page"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .panel { display: grid; gap: 16px; padding: 24px; background: var(--surface); border: 1px solid var(--line); }
+    .panel h2 { font-size: 18px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+    .form-row { display: flex; gap: 8px; }
+    .form-row select { flex: 0 0 33%; }
+    .form-row input { flex: 1; }
+    .attach { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; padding: 12px; background: #f9fafb; border: 1px solid var(--line); font-size: 12px; }
+    .attach > div { min-width: 0; }
+    .attach .label { font-weight: 700; color: var(--text); }
+    .attach input[type="file"], #set-profile-file { max-width: 100%; font-size: 12px; }
+    .attach .hint { margin-top: 6px; overflow-wrap: anywhere; }
+    .attach .hint label { white-space: nowrap; color: var(--danger); }
+    .actions { display: flex; gap: 8px; }
+
+    /* ---------- 푸터 ---------- */
+    .site-footer { margin-top: 64px; background: var(--surface); border-top: 1px solid var(--line); }
+    .site-footer .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 32px; }
+    .profile { display: flex; align-items: center; gap: 16px; min-width: 0; }
+    .profile img { width: 48px; height: 48px; flex-shrink: 0; border-radius: 50%; object-fit: cover; border: 1px solid var(--line); }
+    .profile__name { font-size: 14px; font-weight: 700; line-height: 1.5; }
+    .profile__bio { font-size: 12px; line-height: 1.5; color: var(--muted); overflow-wrap: anywhere; }
+    .site-footer__admin { flex-shrink: 0; font-size: 12px; color: var(--muted); text-decoration: underline; text-underline-offset: 4px; }
+
+    /* ---------- 모바일 ---------- */
     @media (max-width: 640px) {
+      :root { --pad: 16px; }
       body { font-size: 14px; line-height: 1.65; }
-      header > .brunch-container {
-        padding: 12px 16px;
-        flex-wrap: wrap;
-        gap: 8px 12px;
-      }
-      #blog-title { font-size: 20px; line-height: 1.4; min-width: 0; }
-      header > .brunch-container > div { gap: 10px; font-size: 12px; flex-wrap: wrap; }
-      #category-nav { padding: 8px 16px; gap: 20px; font-size: 13px; }
-      #category-nav > button { flex-shrink: 0; min-height: 32px; }
-      main.brunch-container { padding: 24px 16px; }
-      #post-list-section { margin: 0; }
-      #post-list-section > article + article { margin-top: 24px; }
-      #post-list-section article { padding-bottom: 24px; gap: 12px; }
-      #post-list-section h2 { font-size: 14pt; line-height: 1.45; margin-bottom: 6px; }
-      #post-list-section article p { font-size: 12pt; line-height: 1.65; margin-bottom: 8px; }
-      #post-list-section article > img { width: 64px; height: 64px; }
-      #post-list-section > div { padding-top: 40px; padding-bottom: 40px; }
-      #post-detail-section { padding: 20px 16px; }
-      #detail-title { font-size: 14pt; line-height: 1.45; }
-      #detail-content { font-size: 12pt; line-height: 1.85; margin-bottom: 24px; }
-      #post-detail-section > button { margin-bottom: 20px; }
-      #post-detail-section > div.mb-8 { margin-bottom: 20px; }
-      #detail-file-box { flex-wrap: wrap; }
-      #detail-file-link { padding: 8px 12px; }
-      #login-section { margin: 16px auto; padding: 24px 20px; }
-      #login-section h2, #admin-panel h1 { font-size: 20px; }
-      #admin-panel { margin-bottom: 24px; }
-      #admin-panel > div:first-child { padding-left: 12px; }
-      #admin-panel .admin-tab { padding: 10px; font-size: 12px; }
-      #settings-box, #write-box { padding: 16px; }
-      #settings-box h3, #write-box h3 { font-size: 16px; }
-      #write-box > div.flex:has(#post-title) { flex-direction: column; }
-      #post-category, #post-title { width: 100%; }
-      /* 16px prevents focus zoom in mobile Safari. */
-      #login-section input, #settings-box input:not([type="file"]),
-      #write-box input:not([type="file"]), #write-box select, #write-box textarea { font-size: 16px; }
-      footer { margin-top: 24px !important; }
-      footer .brunch-container { padding: 20px 16px; gap: 16px; flex-wrap: wrap; }
-      footer .brunch-container > div:first-child { gap: 10px; flex: 1 1 160px; }
-      #footer-profile-img { width: 36px; height: 36px; }
-      #footer-admin-name { font-size: 13px; }
-      #footer-bio { font-size: 12px; }
+
+      .site-header__bar { flex-wrap: wrap; padding-block: 12px; }
+      .site-title { font-size: 20px; }
+      .site-actions { gap: 12px; font-size: 12px; }
+      .category-nav { font-size: 13px; }
+      .category-nav button { min-height: 32px; }
+
+      main { padding-block: 24px; }
+      .empty { padding-block: 40px; }
+
+      /* 목록(미리보기)은 기존 크기 유지 */
+      .post-list { gap: 24px; }
+      .post-card { gap: 12px; padding-bottom: 24px; }
+      .post-card h2 { font-size: 14pt; line-height: 1.45; margin-bottom: 6px; }
+      .post-card p { font-size: 12pt; margin-bottom: 8px; }
+      .post-card img { width: 64px; height: 64px; }
+
+      /* 글 상세: 카드 테두리를 걷어 본문 폭을 넓히고, 본문은 10pt */
+      .post { padding: 0; background: none; border: 0; box-shadow: none; }
+      .back-link { margin-bottom: 12px; }
+      .post__title { font-size: 14pt; line-height: 1.45; }
+      .post__meta, .file-box { margin-bottom: 20px; }
+      .post__image { margin-bottom: 20px; }
+      .post__content { font-size: 10pt; line-height: 1.85; }
+      .file-box { flex-wrap: wrap; }
+      .file-box a { padding: 8px 12px; }
+
+      .login { margin: 16px auto; padding: 24px 20px; }
+      .login h1 { font-size: 20px; }
+      .admin { margin-bottom: 24px; }
+      .tabs { padding-bottom: 16px; }
+      .tabs a { padding: 8px 12px; font-size: 13px; }
+      .panel { padding: 16px; }
+      .panel h2 { font-size: 16px; }
+      .form-row { flex-direction: column; }
+      .form-row select { flex: none; }
+      .input { font-size: 16px; } /* 16px 미만이면 iOS Safari가 입력 시 화면을 확대함 */
+
+      .site-footer { margin-top: 24px; }
+      .site-footer .wrap { padding-block: 20px; }
+      .profile { gap: 10px; }
+      .profile img { width: 36px; height: 36px; }
+      .profile__name { font-size: 13px; }
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between">
+<body>
 
-  <!-- 상단 헤더 (브런치 스타일) -->
-  <header class="border-b border-gray-200 bg-white sticky top-0 z-10">
-    <div class="brunch-container px-6 py-5 flex justify-between items-center">
-      <a href="#viewer" onclick="showListView()" class="text-2xl font-bold tracking-tight hover:opacity-70 transition" id="blog-title">이것저것</a>
-      <div class="flex items-center gap-3 text-sm text-gray-500">
-        <a id="viewer-link" href="#viewer" class="hidden underline whitespace-nowrap">뷰어로 보기</a>
-        <span id="mode-badge" class="hidden px-2 py-1 bg-black text-white text-xs">관리자 작업실</span>
-        <button id="logout-btn" onclick="logout()" class="hidden underline hover:text-black">로그아웃</button>
+  <header class="site-header">
+    <div class="wrap site-header__bar">
+      <a href="#viewer" id="blog-title" class="site-title">이것저것</a>
+      <div class="site-actions">
+        <a id="nav-viewer" href="#viewer" hidden>블로그 보기</a>
+        <a id="nav-admin" href="#admin" hidden>관리</a>
+        <button id="logout-btn" type="button" hidden>로그아웃</button>
       </div>
     </div>
-    <!-- 네이버 블로그 스타일 카테고리 탭 -->
-    <nav class="brunch-container px-6 py-2 flex gap-5 overflow-x-auto text-sm border-t border-gray-100" id="category-nav">
-      <!-- 카테고리 자동 생성 영역 -->
-    </nav>
+    <nav id="category-nav" class="wrap category-nav" aria-label="카테고리"></nav>
   </header>
 
-  <!-- 메인 콘텐츠 영역 -->
-  <main class="brunch-container w-full px-6 py-10 flex-grow">
+  <main class="wrap">
 
-    <!-- 1. 어드민 로그인 창 (#admin 접속 시 비로그인 상태) -->
-    <section id="login-section" class="hidden max-w-sm mx-auto my-16 p-8 bg-white border border-gray-200 shadow-sm">
-      <p class="text-xs tracking-widest text-gray-400 mb-3">ADMIN ACCESS</p>
-      <h2 class="text-2xl font-bold mb-3">관리자 로그인</h2>
-      <p class="text-sm text-gray-500 mb-6">로그인 후 글 작성·수정·삭제와 블로그 설정을 이용할 수 있습니다.</p>
-      <form onsubmit="event.preventDefault(); login()">
-      <label for="login-id" class="block text-xs mb-1">아이디 또는 이메일</label>
-      <p id="login-help" class="text-xs text-gray-500 mb-4">아이디만 입력하면 @blog.com 계정으로 로그인합니다. 다른 이메일로 등록했다면 전체 이메일 주소를 입력하세요.</p>
-      <input type="text" id="login-id" autocomplete="username" required placeholder="아이디 (또는 이메일)" class="w-full border p-2.5 mb-3 text-sm focus:outline-none focus:border-black">
-      <label for="login-pw" class="block text-xs mb-1">비밀번호</label>
-      <input type="password" autocomplete="current-password" required id="login-pw" placeholder="비밀번호" class="w-full border p-2.5 mb-6 text-sm focus:outline-none focus:border-black">
-      <button id="login-button" type="submit" class="w-full bg-black text-white py-2.5 text-sm hover:bg-gray-800 transition disabled:opacity-50">로그인</button>
+    <!-- 관리자 로그인 (#admin 접속 시, 비로그인 상태) -->
+    <section id="login-section" class="login" hidden>
+      <h1>관리자 로그인</h1>
+      <form id="login-form">
+        <div>
+          <label class="label" for="login-id">아이디 또는 이메일</label>
+          <input class="input" type="text" id="login-id" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+          <p class="hint" style="margin-top:6px">아이디만 입력하면 @blog.com 계정으로 로그인합니다.</p>
+        </div>
+        <div>
+          <label class="label" for="login-pw">비밀번호</label>
+          <input class="input" type="password" id="login-pw" autocomplete="current-password" required>
+        </div>
+        <button id="login-button" class="btn btn--block" type="submit">로그인</button>
+        <p id="login-error" class="status" role="alert"></p>
       </form>
-      <a href="#viewer" class="block text-center text-xs text-gray-500 mt-5 underline">뷰어로 돌아가기</a>
-      <p id="login-error" role="alert" class="hidden text-sm text-red-700 mt-3"></p>
     </section>
 
-    <!-- 2. 어드민 관리 패널 (로그인 완료 시 표시) -->
-    <section id="admin-panel" class="hidden mb-12 space-y-6">
-      <div class="border-l-4 border-gray-800 pl-5 py-2">
-        <p class="text-xs tracking-widest text-gray-400 mb-2">ADMIN WORKSPACE</p>
-        <h1 class="text-2xl font-bold mb-2">관리자 작업실</h1>
-        <p class="text-sm text-gray-500">글을 발행하고 자료를 첨부하거나, 블로그의 모습을 정리하세요.</p>
-      </div>
-      <nav aria-label="관리 기능" class="flex flex-wrap gap-2 border-b border-gray-200 pb-5">
-        <a href="#admin" class="admin-tab border px-4 py-2 text-sm" data-route="#admin">글 관리 <span id="post-count"></span></a>
-        <a href="#write" onclick="openWriter(); return false" class="admin-tab border px-4 py-2 text-sm" data-route="#write">+ 새 글 작성</a>
-        <a href="#settings" class="admin-tab border px-4 py-2 text-sm" data-route="#settings">블로그·프로필 설정</a>
+    <!-- 관리 화면 (로그인 후) -->
+    <section id="admin-panel" class="admin" hidden>
+      <nav class="tabs" aria-label="관리 기능">
+        <a href="#admin" data-tab="admin">글 관리 <span id="post-count"></span></a>
+        <a href="#write" data-tab="write">새 글 작성</a>
+        <a href="#settings" data-tab="settings">설정</a>
       </nav>
-      <p id="manage-help" class="text-sm text-gray-500">글을 선택하면 내용을 확인하고 수정·삭제할 수 있습니다.</p>
+      <p id="manage-help" class="hint">글을 열면 수정·삭제할 수 있습니다.</p>
 
-      <!-- 블로그/프로필 설정 수정 박스 -->
-      <div id="settings-box" class="hidden bg-white p-6 border border-gray-200 space-y-4">
-        <h3 class="font-bold text-lg border-b pb-2">블로그 & 어드민 프로필 설정</h3>
+      <!-- 블로그·프로필 설정 -->
+      <div id="settings-box" class="panel" hidden>
+        <h2>블로그·프로필 설정</h2>
         <div>
-          <label class="block text-xs text-gray-500 mb-1">블로그 제목</label>
-          <input type="text" id="set-title" class="w-full border p-2 text-sm">
+          <label class="label" for="set-title">블로그 제목</label>
+          <input class="input" type="text" id="set-title">
         </div>
         <div>
-          <label class="block text-xs text-gray-500 mb-1">어드민 이름</label>
-          <input type="text" id="set-name" class="w-full border p-2 text-sm">
+          <label class="label" for="set-name">이름</label>
+          <input class="input" type="text" id="set-name">
         </div>
         <div>
-          <label class="block text-xs text-gray-500 mb-1">어드민 바이오 (소개글)</label>
-          <input type="text" id="set-bio" class="w-full border p-2 text-sm">
+          <label class="label" for="set-bio">소개글</label>
+          <input class="input" type="text" id="set-bio">
         </div>
         <div>
-          <label class="block text-xs text-gray-500 mb-1">카테고리 목록 (쉼표 , 로 구분)</label>
-          <input type="text" id="set-categories" class="w-full border p-2 text-sm" placeholder="일상,에세이,자료실">
+          <label class="label" for="set-categories">카테고리 (쉼표로 구분)</label>
+          <input class="input" type="text" id="set-categories" placeholder="일상, 에세이, 자료실">
         </div>
         <div>
-          <label class="block text-xs text-gray-500 mb-1">프로필 사진 변경 (선택 시 업로드)</label>
-          <input type="file" id="set-profile-file" accept="image/*" class="text-sm">
+          <label class="label" for="set-profile-file">프로필 사진 변경</label>
+          <input type="file" id="set-profile-file" accept="image/*">
         </div>
-        <button type="button" id="save-settings-btn" onclick="saveSettings()" class="bg-black text-white px-5 py-2 text-sm disabled:opacity-50 disabled:cursor-wait">설정 저장하기</button>
-        <p id="settings-status" role="status" aria-live="polite" class="text-sm"></p>
+        <div class="actions">
+          <button id="save-settings-btn" class="btn" type="button">설정 저장</button>
+        </div>
+        <p id="settings-status" class="status" role="status" aria-live="polite"></p>
       </div>
 
-      <!-- 글쓰기 / 글수정 박스 -->
-      <div id="write-box" class="hidden bg-white p-6 border border-gray-200 space-y-4">
-        <h3 class="font-bold text-lg border-b pb-2" id="write-form-title">새 글 작성</h3>
-        <input type="hidden" id="edit-post-id">
-        <div class="flex gap-2">
-          <select id="post-category" class="border p-2 text-sm w-1/3"></select>
-          <input type="text" id="post-title" placeholder="제목을 입력하세요" class="border p-2 text-sm w-2/3">
+      <!-- 글쓰기 / 글 수정 -->
+      <div id="write-box" class="panel" hidden>
+        <h2 id="write-heading">새 글 작성</h2>
+        <div class="form-row">
+          <select id="post-category" class="input" aria-label="카테고리"></select>
+          <input id="post-title" class="input" type="text" placeholder="제목" aria-label="제목">
         </div>
-        <textarea id="post-content" rows="10" placeholder="본문 내용을 입력하세요..." class="w-full border p-3 text-sm leading-relaxed"></textarea>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-3 border text-xs">
+        <textarea id="post-content" class="input" placeholder="본문" aria-label="본문"></textarea>
+        <div class="attach">
           <div>
-            <label class="block font-bold mb-1">본문 사진 첨부</label>
+            <label class="label" for="post-image">본문 사진</label>
             <input type="file" id="post-image" accept="image/*">
+            <p id="image-current" class="hint" hidden>등록된 사진이 있습니다. 새로 고르면 교체됩니다.
+              <label><input type="checkbox" id="image-remove"> 삭제</label></p>
           </div>
           <div>
-            <label class="block font-bold mb-1">다운로드용 파일 첨부</label>
+            <label class="label" for="post-file">다운로드용 첨부파일</label>
             <input type="file" id="post-file">
+            <p id="file-current" class="hint" hidden>등록된 파일: <span id="file-current-name"></span>. 새로 고르면 교체됩니다.
+              <label><input type="checkbox" id="file-remove"> 삭제</label></p>
           </div>
         </div>
-        <div class="flex gap-2">
-          <button onclick="savePost()" id="save-post-btn" class="bg-black text-white px-6 py-2 text-sm disabled:opacity-50 disabled:cursor-wait">발행하기</button>
-          <button id="cancel-post-btn" onclick="resetWriteForm()" class="border px-4 py-2 text-sm disabled:opacity-50">취소</button>
+        <div class="actions">
+          <button id="save-post-btn" class="btn" type="button">발행하기</button>
+          <button id="cancel-post-btn" class="btn btn--ghost" type="button">취소</button>
         </div>
-        <p id="post-status" role="status" aria-live="polite" class="text-sm"></p>
+        <p id="post-status" class="status" role="status" aria-live="polite"></p>
       </div>
     </section>
 
-    <!-- 3. 글 목록 화면 -->
-    <p id="publish-status" role="status" aria-live="polite" class="text-sm text-green-700 mb-4"></p>
-    <section id="post-list-section" class="space-y-10">
-      <!-- 게시글 목록이 렌더링되는 곳 -->
+    <!-- 글 목록 -->
+    <p id="flash" class="status" role="status" aria-live="polite"></p>
+    <section id="post-list" class="post-list">
+      <p class="empty">불러오는 중…</p>
     </section>
 
-    <!-- 4. 글 상세 보기 화면 (브런치 스타일 뷰어) -->
-    <section id="post-detail-section" class="hidden bg-white p-8 border border-gray-100 shadow-sm">
-      <button onclick="showListView()" class="text-xs text-gray-400 hover:text-black mb-6 block">← 목록으로 돌아가기</button>
-      <div id="detail-category" class="text-xs text-gray-500 mb-2"></div>
-      <h1 id="detail-title" class="text-3xl font-bold mb-3 leading-snug"></h1>
-      <div class="flex justify-between items-center border-b pb-4 mb-8 text-xs text-gray-400">
-        <span id="detail-date"></span>
-        <div id="detail-admin-btns" class="hidden space-x-2">
-          <button id="btn-edit" class="text-blue-600 underline">수정</button>
-          <button id="btn-delete" class="text-red-600 underline">삭제</button>
+    <!-- 글 상세 -->
+    <article id="post-detail" class="post" hidden>
+      <a id="back-link" class="back-link" href="#viewer">← 목록으로</a>
+      <p id="detail-status" class="status" role="alert"></p>
+      <div id="detail-body">
+        <div id="detail-category" class="post__category"></div>
+        <h1 id="detail-title" class="post__title"></h1>
+        <div class="post__meta">
+          <time id="detail-date"></time>
+          <div id="detail-admin" class="post__admin" hidden>
+            <a id="btn-edit" href="#admin">수정</a>
+            <button id="btn-delete" type="button">삭제</button>
+          </div>
         </div>
+        <div id="detail-file-box" class="file-box" hidden>
+          <span>📎 첨부파일: <strong id="detail-file-name"></strong></span>
+          <a id="detail-file-link" href="#" download>다운로드</a>
+        </div>
+        <img id="detail-image" class="post__image" alt="" hidden>
+        <div id="detail-content" class="post__content"></div>
       </div>
-
-      <!-- 첨부파일 다운로드 박스 (네이버 블로그 스타일) -->
-      <div id="detail-file-box" class="hidden mb-8 p-3 bg-gray-50 border border-gray-200 flex justify-between items-center text-xs">
-        <span class="text-gray-600">📎 첨부파일: <strong id="detail-file-name" class="text-black"></strong></span>
-        <a id="detail-file-link" href="#" target="_blank" download class="bg-white border border-gray-300 px-3 py-1 hover:bg-gray-100">다운로드</a>
-      </div>
-
-      <!-- 첨부 이미지 -->
-      <div id="detail-image-box" class="hidden mb-8">
-        <img id="detail-image" src="" alt="첨부 이미지" class="max-w-full h-auto mx-auto">
-      </div>
-
-      <!-- 본문 텍스트 -->
-      <div id="detail-content" class="post-content text-base leading-loose text-gray-800 mb-12"></div>
-    </section>
+      <p id="detail-missing" class="empty" hidden></p>
+    </article>
 
   </main>
 
-  <!-- 하단 어드민 프로필 영역 (요청하신 작은 프로필 & 바이오) -->
-  <footer class="border-t border-gray-200 bg-white mt-16">
-    <div class="brunch-container px-6 py-8 flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <img id="footer-profile-img" src="" alt="프로필" class="w-12 h-12 rounded-full object-cover border border-gray-200">
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="profile">
+        <img id="footer-profile-img" alt="" hidden>
         <div>
-          <div class="text-sm font-bold" id="footer-admin-name">흑구</div>
-          <div class="text-xs text-gray-500 mt-0.5" id="footer-bio">바이오 로딩 중...</div>
+          <div id="footer-admin-name" class="profile__name">흑구</div>
+          <div id="footer-bio" class="profile__bio"></div>
         </div>
       </div>
-      <div class="text-xs text-gray-300">
-        <a href="#viewer" class="hover:text-gray-500 mr-2">Viewer</a> | 
-        <a href="#admin" class="text-gray-600 hover:text-gray-900 ml-2 underline underline-offset-4">Admin</a>
-      </div>
+      <a id="footer-admin" class="site-footer__admin" href="#admin">Admin</a>
     </div>
   </footer>
 
+  <!-- Supabase 연결 라이브러리 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // ==========================================
-    // ★ 여기에 본인의 Supabase 정보를 넣으세요 ★
+    // ★ 본인의 Supabase 정보 ★ (프로젝트 기본 주소 + 공개 키)
     // ==========================================
-    const SUPABASE_URL = 'https://ibkjxevstxdtsvbylxsn.supabase.co/rest/v1/';
+    const SUPABASE_URL = 'https://ibkjxevstxdtsvbylxsn.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_y4jTDQNCmgJYNSOvdHzwjg_qlZllbgY';
-    // SDK에는 REST API 경로가 아닌 프로젝트 기본 주소를 전달합니다.
-    const supabaseClient = supabase.createClient(new URL(SUPABASE_URL).origin, SUPABASE_KEY);
+    const BUCKET = 'files';             // 사진·첨부파일 저장 버킷
+    const LOGIN_DOMAIN = '@blog.com';   // 아이디만 입력했을 때 붙일 도메인
+    const DEFAULT_TITLE = '이것저것';
+    const DRAFT_KEY = 'blog-draft';     // 새 글 임시 저장 키
+    const STORAGE_PREFIX = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/`;
+    const ADMIN_ROUTES = ['admin', 'write', 'edit', 'settings'];
 
-    let blogSettings = {};
-    let allPosts = [];
-    let currentCategory = '전체';
-    let isAdminMode = false;
-    let isLoggedIn = false;
+    const $ = id => document.getElementById(id);
+    const show = (el, on) => { el.hidden = !on; };
+    const esc = value => String(value ?? '').replace(/[&<>"']/g, c => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+    function setStatus(el, text = '', kind = '') {
+      el.textContent = text;
+      el.dataset.kind = kind;
+    }
+    // 사용자에게 그대로 보여 줄 안내 메시지
+    class UserError extends Error {}
+    const isDenied = e => e.code === '42501' || [401, 403].includes(Number(e.status ?? e.statusCode));
 
-    // 초기 실행
-    window.addEventListener('DOMContentLoaded', async () => {
-      await checkAuth();
-      await loadSettings();
-      try {
-        await loadPosts();
-      } catch {
-        // 목록 조회 실패 시에도 로그인과 글쓰기 화면은 사용할 수 있습니다.
-      }
-      handleRouting();
-    });
+    if (!window.supabase) {
+      $('post-list').innerHTML = '<p class="empty">서버 연결 라이브러리를 불러오지 못했습니다. 새로고침해 주세요.</p>';
+      throw new Error('supabase-js를 불러오지 못했습니다.');
+    }
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    window.addEventListener('hashchange', handleRouting);
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
-        isLoggedIn = !!session;
-        updateUIForMode();
-      }
-    });
+    // ---------- 상태 ----------
+    let settings = {};
+    let posts = [];
+    let postsState = 'loading';              // 'loading' | 'ready' | 'error'
+    let category = '';                       // '' = 전체글
+    let loggedIn = false;
+    let formKey = null;                      // 글쓰기 폼에 채워진 대상 ('new' | 'edit:ID')
+    let flash = '';                          // 목록 위에 한 번 보여 줄 완료 메시지
+    let prevRoute = null;
+    let lastList = { name: 'list', y: 0 };   // 마지막으로 본 목록과 스크롤 위치
 
-    // 주소창(#admin vs #viewer)에 따른 화면 전환
-    async function handleRouting() {
-      await checkAuth();
-      isAdminMode = ['#admin', '#write', '#settings'].includes(window.location.hash);
-      updateUIForMode();
-      window.scrollTo(0, 0);
+    // ---------- 라우팅 ----------
+    // #viewer(목록) · #post/ID(글) · #admin · #write · #edit/ID · #settings
+    function getRoute() {
+      const [name, id] = location.hash.slice(1).split('/');
+      if ((name === 'post' || name === 'edit') && id) return { name, id };
+      if (['admin', 'write', 'settings'].includes(name)) return { name };
+      return { name: 'list' };
     }
 
-    async function checkAuth() {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      isLoggedIn = !!session;
+    function onRouteChange() {
+      const route = getRoute();
+      if (prevRoute && ['list', 'admin'].includes(prevRoute.name)) {
+        lastList = { name: prevRoute.name, y: window.scrollY };
+      }
+      render();
+      // 글을 읽고 목록으로 돌아오면 보던 위치로 복원
+      const backToList = prevRoute && prevRoute.name === 'post' && route.name === lastList.name;
+      window.scrollTo(0, backToList ? lastList.y : 0);
+      prevRoute = route;
     }
 
-    function updateUIForMode() {
-      const managing = isAdminMode && isLoggedIn;
-      const route = window.location.hash;
-      document.getElementById('login-section').classList.toggle('hidden', !isAdminMode || isLoggedIn);
-      document.getElementById('admin-panel').classList.toggle('hidden', !managing);
-      document.getElementById('mode-badge').classList.toggle('hidden', !managing);
-      document.getElementById('logout-btn').classList.toggle('hidden', !managing);
-      document.getElementById('viewer-link').classList.toggle('hidden', !isAdminMode);
-      document.getElementById('category-nav').classList.toggle('hidden', isAdminMode && (!isLoggedIn || route !== '#admin'));
-      document.getElementById('write-box').classList.toggle('hidden', !managing || route !== '#write');
-      document.getElementById('settings-box').classList.toggle('hidden', !managing || route !== '#settings');
-      document.getElementById('manage-help').classList.toggle('hidden', !managing || route !== '#admin');
-      document.getElementById('post-detail-section').classList.add('hidden');
-      document.getElementById('detail-admin-btns').classList.add('hidden');
-      document.getElementById('post-list-section').classList.toggle('hidden', isAdminMode && (!isLoggedIn || route !== '#admin'));
-      document.getElementById('publish-status').classList.toggle('hidden', !managing || route !== '#admin');
-      document.querySelectorAll('[data-route]').forEach(tab => {
-        if (tab.dataset.route === route) tab.setAttribute('aria-current', 'page');
+    const findPost = id => posts.find(p => String(p.id) === String(id));
+    const categoryList = () => [...new Set((settings.categories || '').split(',').map(c => c.trim()).filter(Boolean))];
+
+    // ---------- 화면 그리기 ----------
+    function render() {
+      const route = getRoute();
+      const admin = ADMIN_ROUTES.includes(route.name);
+      const managing = admin && loggedIn;
+      const writing = managing && (route.name === 'write' || route.name === 'edit');
+      const listing = route.name === 'list' || (managing && route.name === 'admin');
+      const reading = route.name === 'post';
+
+      show($('nav-viewer'), admin);
+      show($('nav-admin'), loggedIn && !admin);
+      show($('logout-btn'), loggedIn);
+      show($('footer-admin'), !loggedIn && !admin);
+
+      show($('login-section'), admin && !loggedIn);
+      show($('admin-panel'), managing);
+      show($('manage-help'), managing && route.name === 'admin');
+      show($('settings-box'), managing && route.name === 'settings');
+      show($('write-box'), writing);
+      document.querySelectorAll('[data-tab]').forEach(tab => {
+        if (tab.dataset.tab === route.name) tab.setAttribute('aria-current', 'page');
         else tab.removeAttribute('aria-current');
       });
-      renderPostList();
+      $('post-count').textContent = postsState === 'ready' ? `(${posts.length})` : '';
+
+      show($('category-nav'), listing);
+      show($('post-list'), listing);
+      show($('post-detail'), reading);
+      setStatus($('flash'), listing ? flash : '', 'ok');
+      if (listing) flash = '';
+
+      if (listing) { renderCategories(); renderPostList(); }
+      if (reading) renderPost(route.id);
+      if (writing) prepareForm(route);
+      else if (route.name !== 'write' && route.name !== 'edit') formKey = null;
+
+      const blogTitle = settings.title || DEFAULT_TITLE;
+      const post = reading && findPost(route.id);
+      document.title = post ? `${post.title} · ${blogTitle}` : blogTitle;
     }
 
-    function openWriter() {
-      if (!isAdminMode || !isLoggedIn) return;
-      resetWriteForm(false);
-      if (window.location.hash !== '#write') window.location.hash = '#write';
-      else updateUIForMode();
-      document.getElementById('publish-status').textContent = '';
-      window.scrollTo(0, 0);
+    function renderCategories() {
+      const cats = categoryList();
+      if (category && !cats.includes(category)) category = '';
+      $('category-nav').innerHTML = ['', ...cats].map(c =>
+        `<button type="button" data-cat="${esc(c)}" aria-pressed="${c === category}">${c ? esc(c) : '전체글'}</button>`
+      ).join('');
     }
 
-    // 로그인 (아이디만 입력해도 자동으로 @blog.com을 붙여줌)
-    async function login() {
-      const button = document.getElementById('login-button');
-      if (button.disabled) return;
-      const errorMessage = document.getElementById('login-error');
-      errorMessage.classList.add('hidden');
-      let id = document.getElementById('login-id').value.trim();
-      const pw = document.getElementById('login-pw').value;
-      if (!id || !pw) {
-        errorMessage.textContent = '아이디 또는 이메일과 비밀번호를 모두 입력하세요.';
-        errorMessage.classList.remove('hidden');
+    function renderPostList() {
+      const el = $('post-list');
+      if (postsState === 'loading') {
+        el.innerHTML = '<p class="empty">불러오는 중…</p>';
         return;
       }
-      if (!id.includes('@')) id = id + '@blog.com';
+      if (postsState === 'error') {
+        el.innerHTML = '<div class="empty">글 목록을 불러오지 못했습니다.<br><button type="button" id="retry-btn" class="btn btn--ghost">다시 시도</button></div>';
+        return;
+      }
+      const list = category ? posts.filter(p => p.category === category) : posts;
+      if (!list.length) {
+        el.innerHTML = `<p class="empty">${category ? '이 카테고리에는 글이 없습니다.' : '작성된 글이 없습니다.'}</p>`;
+        return;
+      }
+      el.innerHTML = list.map(post => {
+        const text = (post.content || '').replace(/\s+/g, ' ').trim();
+        const summary = text.length > 120 ? text.slice(0, 120) + '…' : text;
+        const date = new Date(post.created_at).toLocaleDateString('ko-KR');
+        return `
+          <article class="post-card">
+            <div class="post-card__body">
+              <div class="post-card__meta">${esc(post.category || '미분류')}${post.file_url ? ' · 📎첨부파일' : ''}</div>
+              <h2><a href="#post/${encodeURIComponent(post.id)}">${esc(post.title)}</a></h2>
+              <p>${esc(summary)}</p>
+              <time>${esc(date)}</time>
+            </div>
+            ${post.image_url ? `<img src="${esc(post.image_url)}" alt="" loading="lazy">` : ''}
+          </article>`;
+      }).join('');
+    }
+
+    function renderPost(id) {
+      const post = findPost(id);
+      $('back-link').href = lastList.name === 'admin' && loggedIn ? '#admin' : '#viewer';
+      setStatus($('detail-status'));
+      show($('detail-body'), !!post);
+      show($('detail-missing'), !post);
+      if (!post) {
+        $('detail-missing').textContent = postsState === 'loading' ? '불러오는 중…' : '글을 찾을 수 없습니다.';
+        return;
+      }
+
+      $('detail-category').textContent = post.category || '미분류';
+      $('detail-title').textContent = post.title;
+      $('detail-date').textContent = new Date(post.created_at).toLocaleString('ko-KR', {
+        year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit'
+      });
+      $('detail-content').textContent = post.content;
+
+      const image = $('detail-image');
+      show(image, !!post.image_url);
+      if (post.image_url) {
+        image.src = post.image_url;
+        image.alt = `${post.title} 첨부 이미지`;
+      } else {
+        image.removeAttribute('src');
+      }
+
+      show($('detail-file-box'), !!post.file_url);
+      if (post.file_url) {
+        const name = post.file_name || '첨부파일';
+        const link = $('detail-file-link');
+        $('detail-file-name').textContent = name;
+        if (post.file_url.startsWith(STORAGE_PREFIX)) {
+          // Supabase가 원래 파일명으로 내려받게 해 줍니다.
+          link.href = `${post.file_url}?download=${encodeURIComponent(post.file_name || '')}`;
+          link.removeAttribute('target');
+        } else {
+          link.href = post.file_url;
+          link.target = '_blank';
+          link.rel = 'noopener';
+        }
+      }
+
+      show($('detail-admin'), loggedIn);
+      $('btn-edit').href = `#edit/${encodeURIComponent(post.id)}`;
+      $('btn-delete').dataset.id = post.id;
+    }
+
+    // ---------- 인증 ----------
+    function loginErrorMessage(error) {
+      if (error.code === 'email_not_confirmed') return '이메일 인증이 완료되지 않았습니다. 인증 메일의 링크를 확인하세요.';
+      if (error.code === 'invalid_credentials' || error.status === 400) return '아이디(이메일) 또는 비밀번호가 올바르지 않습니다.';
+      if (error.status === 429) return '로그인 시도가 너무 많습니다. 잠시 후 다시 시도하세요.';
+      if ([401, 403, 404].includes(error.status)) return '인증 서비스 설정 또는 접근 권한을 확인해야 합니다.';
+      if (error.name === 'AuthRetryableFetchError' || error.status === 0 || error.status >= 500) {
+        return '인증 서버에 연결할 수 없습니다. 네트워크 상태를 확인하고 다시 시도하세요.';
+      }
+      return '로그인하지 못했습니다. 잠시 후 다시 시도하세요.';
+    }
+
+    async function login(event) {
+      event.preventDefault();
+      const button = $('login-button');
+      const errorEl = $('login-error');
+      if (button.disabled) return;
+      setStatus(errorEl);
+
+      let email = $('login-id').value.trim();
+      const password = $('login-pw').value;
+      if (!email || !password) {
+        setStatus(errorEl, '아이디(이메일)와 비밀번호를 모두 입력하세요.', 'error');
+        return;
+      }
+      if (!email.includes('@')) email += LOGIN_DOMAIN;
 
       button.disabled = true;
-      button.textContent = '로그인 중...';
+      button.textContent = '로그인 중…';
       try {
-        const { error } = await supabaseClient.auth.signInWithPassword({ email: id, password: pw });
+        const { error } = await db.auth.signInWithPassword({ email, password });
         if (error) {
-          let message = '로그인 처리에 실패했습니다. 잠시 후 다시 시도하세요.';
-          if (error.code === 'invalid_credentials' || error.status === 400) {
-            message = '아이디(등록 이메일) 또는 비밀번호가 올바르지 않습니다. 아이디만 입력하면 @blog.com 계정으로 로그인합니다.';
-          }
-          if (error.code === 'email_not_confirmed') {
-            message = '이메일 인증이 완료되지 않았습니다. 가입 또는 초대 이메일의 인증 링크를 확인하세요.';
-          } else if (error.status === 429) {
-            message = '로그인 시도가 너무 많습니다. 잠시 후 다시 시도하세요.';
-          } else if (error.status === 401 || error.status === 403 || error.status === 404) {
-            message = '인증 서비스 연결 설정 또는 접근 권한을 확인해야 합니다. 관리자에게 문의하세요.';
-          } else if (error.name === 'AuthRetryableFetchError' || error.status === 0 || error.status >= 500) {
-            message = '인증 서버에 연결할 수 없습니다. 네트워크 상태를 확인하고 잠시 후 다시 시도하세요.';
-          }
-          errorMessage.textContent = message;
-          errorMessage.classList.remove('hidden');
+          setStatus(errorEl, loginErrorMessage(error), 'error');
           return;
         }
-        isLoggedIn = true;
-        document.getElementById('login-pw').value = '';
-        updateUIForMode();
+        $('login-pw').value = '';
+        loggedIn = true;
+        render();
       } catch {
-        errorMessage.textContent = '로그인 요청을 완료하지 못했습니다. 네트워크 상태를 확인하고 다시 시도하세요.';
-        errorMessage.classList.remove('hidden');
+        setStatus(errorEl, '로그인 요청을 완료하지 못했습니다. 네트워크 상태를 확인하고 다시 시도하세요.', 'error');
       } finally {
         button.disabled = false;
         button.textContent = '로그인';
@@ -385,319 +592,322 @@
     }
 
     async function logout() {
-      await supabaseClient.auth.signOut();
-      isLoggedIn = false;
-      window.location.hash = '#viewer';
-      isAdminMode = false;
-      updateUIForMode();
+      try { await db.auth.signOut(); } catch { /* 로컬 세션만 정리돼도 충분합니다. */ }
+      loggedIn = false;
+      if (ADMIN_ROUTES.includes(getRoute().name)) location.hash = '#viewer';
+      else render();
     }
 
-    // 블로그 설정 및 프로필 불러오기
+    async function requireSession() {
+      const { data, error } = await db.auth.getSession();
+      if (error) throw error;
+      if (!data.session) throw new UserError('로그인이 만료되었습니다. 다시 로그인한 뒤 시도하세요. 작성 내용은 유지됩니다.');
+    }
+
+    // ---------- 데이터 ----------
     async function loadSettings() {
-      const { data } = await supabaseClient.from('blog_settings').select('*').eq('id', 1).single();
+      const { data } = await db.from('blog_settings').select('*').eq('id', 1).maybeSingle();
       if (data) applySettings(data);
     }
 
     function applySettings(data) {
-        blogSettings = data;
-        document.title = data.title;
-        document.getElementById('blog-title').innerText = data.title;
-        document.getElementById('footer-admin-name').innerText = data.admin_name;
-        document.getElementById('footer-bio').innerText = data.bio;
-        document.getElementById('footer-profile-img').src = data.profile_img;
+      settings = data;
+      $('blog-title').textContent = data.title || DEFAULT_TITLE;
+      $('footer-admin-name').textContent = data.admin_name || '';
+      $('footer-bio').textContent = data.bio || '';
+      const avatar = $('footer-profile-img');
+      show(avatar, !!data.profile_img);
+      if (data.profile_img) avatar.src = data.profile_img;
 
-        // 어드민 설정 폼 채우기
-        document.getElementById('set-title').value = data.title;
-        document.getElementById('set-name').value = data.admin_name;
-        document.getElementById('set-bio').value = data.bio;
-        document.getElementById('set-categories').value = data.categories;
-
-        renderCategories();
+      $('set-title').value = data.title || '';
+      $('set-name').value = data.admin_name || '';
+      $('set-bio').value = data.bio || '';
+      $('set-categories').value = data.categories || '';
     }
 
-    function renderCategories() {
-      const cats = blogSettings.categories ? blogSettings.categories.split(',').map(c => c.trim()) : [];
-      const nav = document.getElementById('category-nav');
-      const select = document.getElementById('post-category');
-
-      nav.innerHTML = `<button onclick="filterCategory('전체')" class="${currentCategory === '전체' ? 'font-bold text-black border-b-2 border-black' : 'text-gray-400'} pb-1 whitespace-nowrap">전체글</button>`;
-      select.innerHTML = '';
-
-      cats.forEach(c => {
-        if(!c) return;
-        nav.innerHTML += `<button onclick="filterCategory('${c}')" class="${currentCategory === c ? 'font-bold text-black border-b-2 border-black' : 'text-gray-400'} pb-1 whitespace-nowrap">${c}</button>`;
-        select.innerHTML += `<option value="${c}">${c}</option>`;
-      });
+    async function loadPosts() {
+      postsState = 'loading';
+      const { data, error } = await db.from('posts').select('*').order('created_at', { ascending: false });
+      posts = error ? [] : (data || []);
+      postsState = error ? 'error' : 'ready';
     }
 
-    function filterCategory(cat) {
-      currentCategory = cat;
-      renderCategories();
-      showListView();
-      renderPostList();
-    }
-
-    // 파일 업로드 공통 함수
     async function uploadFile(file) {
-      const ext = file.name.split('.').pop();
-      const safeName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
-      const { error } = await supabaseClient.storage.from('files').upload(safeName, file);
+      const dot = file.name.lastIndexOf('.');
+      const ext = dot > 0 ? file.name.slice(dot).toLowerCase().replace(/[^.a-z0-9]/g, '') : '';
+      const path = `${Date.now()}_${Math.random().toString(36).slice(2, 7)}${ext}`;
+      const { error } = await db.storage.from(BUCKET).upload(path, file);
       if (error) throw error;
-      const { data } = supabaseClient.storage.from('files').getPublicUrl(safeName);
-      return data.publicUrl;
+      return db.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
     }
 
-    // 설정 저장하기
-    async function saveSettings() {
-      const button = document.getElementById('save-settings-btn');
-      const status = document.getElementById('settings-status');
-      if (button.disabled) return;
+    // 더 이상 쓰이지 않는 사진·첨부파일을 저장소에서 정리합니다. (실패해도 글에는 영향 없음)
+    function removeStoredFiles(urls) {
+      const paths = urls
+        .filter(url => url && url.startsWith(STORAGE_PREFIX))
+        .map(url => decodeURIComponent(url.slice(STORAGE_PREFIX.length).split('?')[0]));
+      if (paths.length) db.storage.from(BUCKET).remove(paths).catch(() => {});
+    }
 
+    // ---------- 설정 저장 ----------
+    async function saveSettings() {
+      const button = $('save-settings-btn');
+      const status = $('settings-status');
+      if (button.disabled) return;
       button.disabled = true;
-      button.textContent = '저장 중...';
-      status.className = 'text-sm text-gray-600';
-      status.textContent = '설정을 저장하고 있습니다.';
+      button.textContent = '저장 중…';
+      setStatus(status, '설정을 저장하고 있습니다.');
       let stage = 'session';
 
       try {
-        const { data: { session }, error: authError } = await supabaseClient.auth.getSession();
-        if (authError) throw authError;
-        if (!session) {
-          status.className = 'text-sm text-red-600';
-          status.textContent = '로그인이 만료되었습니다. 다시 로그인한 뒤 저장하세요.';
-          return;
-        }
-
-        const title = document.getElementById('set-title').value;
-        const admin_name = document.getElementById('set-name').value;
-        const bio = document.getElementById('set-bio').value;
-        const categories = document.getElementById('set-categories').value;
-        const profileInput = document.getElementById('set-profile-file');
-        const profileFile = profileInput.files[0];
-        let profile_img = blogSettings.profile_img;
+        await requireSession();
+        const fileInput = $('set-profile-file');
+        const previousImage = settings.profile_img;
+        let profile_img = previousImage;
         stage = 'upload';
-        if (profileFile) profile_img = await uploadFile(profileFile);
+        if (fileInput.files[0]) profile_img = await uploadFile(fileInput.files[0]);
 
         stage = 'save';
-        const { data, error } = await supabaseClient.from('blog_settings').update({
-          title, admin_name, bio, categories, profile_img
+        const { data, error } = await db.from('blog_settings').update({
+          title: $('set-title').value.trim(),
+          admin_name: $('set-name').value.trim(),
+          bio: $('set-bio').value.trim(),
+          categories: $('set-categories').value,
+          profile_img
         }).eq('id', 1).select('*').maybeSingle();
         if (error) throw error;
-        if (!data) {
-          status.className = 'text-sm text-red-600';
-          status.textContent = '설정을 저장하지 못했습니다. 설정 데이터가 없거나 수정 권한이 없습니다. 관리자에게 확인하세요.';
-          return;
-        }
+        if (!data) throw new UserError('설정을 저장하지 못했습니다. 설정 데이터가 없거나 수정 권한이 없습니다.');
 
+        if (previousImage !== data.profile_img) removeStoredFiles([previousImage]);
         applySettings(data);
-        profileInput.value = '';
-        status.className = 'text-sm text-green-700';
-        status.textContent = '설정이 저장되었습니다.';
-      } catch (error) {
-        status.className = 'text-sm text-red-600';
-        if (error.status === 401 || error.status === 403 || error.code === '42501') {
-          status.textContent = '저장 권한이 없습니다. 다시 로그인한 뒤 시도하고, 계속 실패하면 관리자에게 접근 권한을 확인하세요.';
-        } else if (stage === 'upload') {
-          status.textContent = '프로필 사진 업로드에 실패했습니다. 파일과 네트워크 상태를 확인한 뒤 다시 시도하세요.';
-        } else {
-          status.textContent = '설정을 저장하지 못했습니다. 네트워크 또는 서비스 상태를 확인한 뒤 다시 시도하세요.';
-        }
+        fileInput.value = '';
+        render();
+        setStatus(status, '설정이 저장되었습니다.', 'ok');
+      } catch (e) {
+        let message = '설정을 저장하지 못했습니다. 네트워크 상태를 확인한 뒤 다시 시도하세요.';
+        if (e instanceof UserError) message = e.message;
+        else if (isDenied(e)) message = '저장 권한이 없습니다. 다시 로그인한 뒤 시도하세요.';
+        else if (stage === 'upload') message = '프로필 사진 업로드에 실패했습니다. 파일과 네트워크 상태를 확인하세요.';
+        setStatus(status, message, 'error');
       } finally {
         button.disabled = false;
-        button.textContent = '설정 저장하기';
+        button.textContent = '설정 저장';
       }
     }
 
-    // 게시글 불러오기
-    async function loadPosts() {
-      const { data, error } = await supabaseClient.from('posts').select('*').order('created_at', { ascending: false });
-      if (error) {
-        document.getElementById('post-list-section').textContent = '글 목록을 불러오지 못했습니다. 새로고침해 다시 시도하세요.';
-        throw error;
-      }
-      allPosts = data || [];
-      renderPostList();
+    // ---------- 글쓰기 / 수정 ----------
+    function readDraft() {
+      try { return JSON.parse(localStorage.getItem(DRAFT_KEY)) || {}; } catch { return {}; }
+    }
+    function saveDraft() {
+      if (formKey !== 'new') return;
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          category: $('post-category').value,
+          title: $('post-title').value,
+          content: $('post-content').value
+        }));
+      } catch { /* 저장 공간을 쓸 수 없으면 임시 저장만 건너뜁니다. */ }
+    }
+    function clearDraft() {
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* 무시 */ }
     }
 
-    function renderPostList() {
-      const listSec = document.getElementById('post-list-section');
-      document.getElementById('post-count').textContent = `(${allPosts.length})`;
-      const filtered = currentCategory === '전체' ? allPosts : allPosts.filter(p => p.category === currentCategory);
-
-      if (filtered.length === 0) {
-        listSec.innerHTML = `<div class="text-center text-gray-400 py-20 text-sm">작성된 글이 없습니다.</div>`;
-        return;
+    // 주소(#write, #edit/ID)가 바뀔 때만 폼을 새로 채웁니다. 입력 중인 내용은 덮어쓰지 않습니다.
+    function prepareForm(route) {
+      const key = route.name === 'edit' ? `edit:${route.id}` : 'new';
+      if (key === formKey) return;
+      let post = null;
+      if (route.name === 'edit') {
+        if (postsState === 'loading') return;
+        post = findPost(route.id);
+        if (!post) { location.replace('#admin'); return; }
       }
-
-      listSec.innerHTML = filtered.map(post => {
-        const date = new Date(post.created_at).toLocaleDateString('ko-KR');
-        const summary = post.content.length > 120 ? post.content.substring(0, 120) + '...' : post.content;
-        return `
-          <article class="border-b border-gray-100 pb-8 cursor-pointer group flex justify-between gap-6 items-start" onclick="openPost(${post.id})">
-            <div class="flex-grow">
-              <div class="text-xs text-gray-400 mb-1">${post.category || '미분류'} ${post.file_url ? ' · 📎첨부파일' : ''}</div>
-              <h2 class="text-xl font-bold mb-2 group-hover:underline">${post.title}</h2>
-              <p class="text-sm text-gray-600 leading-relaxed mb-3">${summary}</p>
-              <span class="text-xs text-gray-400">${date}</span>
-            </div>
-            ${post.image_url ? `<img src="${post.image_url}" class="w-24 h-24 object-cover border border-gray-100 flex-shrink-0">` : ''}
-          </article>
-        `;
-      }).join('');
+      formKey = key;
+      fillForm(post);
     }
 
-    // 글 상세 보기
-    function openPost(id) {
-      if (isAdminMode && !isLoggedIn) return;
-      const post = allPosts.find(p => p.id === id);
-      if (!post) return;
+    function fillForm(post) {
+      const source = post || readDraft();
+      const restored = !post && !!(source.title || source.content);
+      $('write-heading').textContent = post ? '글 수정' : '새 글 작성';
+      $('save-post-btn').textContent = post ? '수정 저장' : '발행하기';
 
-      document.getElementById('post-list-section').classList.add('hidden');
-      document.getElementById('post-detail-section').classList.remove('hidden');
+      const cats = categoryList();
+      if (source.category && !cats.includes(source.category)) cats.push(source.category);
+      const select = $('post-category');
+      select.innerHTML = cats.length
+        ? cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('')
+        : '<option value="">미분류</option>';
+      if (source.category) select.value = source.category;
 
-      document.getElementById('detail-category').innerText = post.category;
-      document.getElementById('detail-title').innerText = post.title;
-      document.getElementById('detail-date').innerText = new Date(post.created_at).toLocaleString('ko-KR');
-      document.getElementById('detail-content').innerText = post.content;
-
-      // 이미지 처리
-      const imgBox = document.getElementById('detail-image-box');
-      if (post.image_url) {
-        document.getElementById('detail-image').src = post.image_url;
-        imgBox.classList.remove('hidden');
-      } else {
-        imgBox.classList.add('hidden');
-      }
-
-      // 첨부파일 처리
-      const fileBox = document.getElementById('detail-file-box');
-      if (post.file_url) {
-        document.getElementById('detail-file-name').innerText = post.file_name || '첨부파일';
-        document.getElementById('detail-file-link').href = post.file_url;
-        fileBox.classList.remove('hidden');
-      } else {
-        fileBox.classList.add('hidden');
-      }
-
-      // 어드민 수정/삭제 버튼 표시
-      const adminBtns = document.getElementById('detail-admin-btns');
-      if (isAdminMode && isLoggedIn) {
-        adminBtns.classList.remove('hidden');
-        document.getElementById('btn-edit').onclick = () => startEditPost(post);
-        document.getElementById('btn-delete').onclick = () => deletePost(post.id);
-      } else {
-        adminBtns.classList.add('hidden');
-      }
-      window.scrollTo(0, 0);
+      $('post-title').value = source.title || '';
+      $('post-content').value = source.content || '';
+      $('post-image').value = '';
+      $('post-file').value = '';
+      $('image-remove').checked = false;
+      $('file-remove').checked = false;
+      show($('image-current'), !!(post && post.image_url));
+      show($('file-current'), !!(post && post.file_url));
+      $('file-current-name').textContent = (post && post.file_name) || '첨부파일';
+      setStatus($('post-status'), restored ? '임시 저장된 글을 불러왔습니다.' : '');
     }
 
-    function showListView() {
-      document.getElementById('post-detail-section').classList.add('hidden');
-      document.getElementById('post-list-section').classList.remove('hidden');
-    }
-
-    // 글 저장 및 수정
     async function savePost() {
-      const btn = document.getElementById('save-post-btn');
-      const status = document.getElementById('post-status');
-      const cancel = document.getElementById('cancel-post-btn');
-      if (btn.disabled) return;
-      btn.innerText = '업로드 중...';
-      btn.disabled = true;
+      const button = $('save-post-btn');
+      const cancel = $('cancel-post-btn');
+      const status = $('post-status');
+      if (button.disabled) return;
+      const route = getRoute();
+      const editing = route.name === 'edit';
+      const original = editing ? findPost(route.id) : null;
+
+      button.disabled = true;
       cancel.disabled = true;
-      status.className = 'text-sm text-gray-600';
-      status.textContent = '글을 저장하고 있습니다.';
+      button.textContent = '저장 중…';
+      setStatus(status, '글을 저장하고 있습니다.');
 
       try {
-        const { data: { session }, error: authError } = await supabaseClient.auth.getSession();
-        if (authError) throw authError;
-        if (!session) throw new Error('로그인이 만료되었습니다. 다시 로그인한 뒤 발행하세요. 작성 내용은 유지됩니다.');
-        const editId = document.getElementById('edit-post-id').value;
-        const category = document.getElementById('post-category').value;
-        const title = document.getElementById('post-title').value;
-        const content = document.getElementById('post-content').value;
-        const imgFile = document.getElementById('post-image').files[0];
-        const attachFile = document.getElementById('post-file').files[0];
-        if (!title.trim() || !content.trim()) throw new Error('제목과 본문을 모두 입력하세요.');
+        const title = $('post-title').value.trim();
+        const content = $('post-content').value;
+        if (!title || !content.trim()) throw new UserError('제목과 본문을 모두 입력하세요.');
+        if (editing && !original) throw new UserError('수정할 글을 찾을 수 없습니다.');
+        await requireSession();
 
-        let postData = { category, title, content };
-
-        if (imgFile) postData.image_url = await uploadFile(imgFile);
+        const data = { category: $('post-category').value, title, content };
+        const imageFile = $('post-image').files[0];
+        const attachFile = $('post-file').files[0];
+        if (imageFile) data.image_url = await uploadFile(imageFile);
+        else if ($('image-remove').checked) data.image_url = null;
         if (attachFile) {
-          postData.file_url = await uploadFile(attachFile);
-          postData.file_name = attachFile.name;
+          data.file_url = await uploadFile(attachFile);
+          data.file_name = attachFile.name;
+        } else if ($('file-remove').checked) {
+          data.file_url = null;
+          data.file_name = null;
         }
 
-        const request = editId
-          ? supabaseClient.from('posts').update(postData).eq('id', editId)
-          : supabaseClient.from('posts').insert([postData]);
-        const { data: saved, error } = await request.select('*').single();
+        const request = editing
+          ? db.from('posts').update(data).eq('id', original.id)
+          : db.from('posts').insert([data]);
+        const { data: saved, error } = await request.select('*').maybeSingle();
         if (error) throw error;
-        if (!saved) throw new Error('저장된 글을 확인하지 못했습니다. 작성 내용을 유지합니다.');
+        if (!saved) throw new UserError('글을 저장할 권한이 없거나 저장 결과를 확인하지 못했습니다. 작성 내용은 유지됩니다.');
 
-        resetWriteForm();
-        allPosts = [saved, ...allPosts.filter(post => post.id !== saved.id)];
-        currentCategory = '전체';
-        renderCategories();
-        renderPostList();
-        showListView();
-        document.getElementById('publish-status').textContent = editId ? '글이 수정되었습니다.' : '글이 발행되었습니다.';
-        window.location.hash = '#admin';
+        if (original) {
+          removeStoredFiles([
+            original.image_url !== saved.image_url && original.image_url,
+            original.file_url !== saved.file_url && original.file_url
+          ]);
+        } else {
+          clearDraft();
+        }
+        posts = [saved, ...posts.filter(p => String(p.id) !== String(saved.id))]
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        category = '';
+        formKey = null;
+        flash = editing ? '글이 수정되었습니다.' : '글이 발행되었습니다.';
+        location.replace('#admin');
       } catch (e) {
-        status.className = 'text-sm text-red-700';
-        status.textContent = e.code === '42501' || e.status === 403
-          ? '글 또는 첨부파일을 저장할 권한이 없습니다. 작성 내용은 유지됩니다.'
-          : (e.message || '발행하지 못했습니다. 네트워크 상태를 확인하고 다시 시도하세요.');
+        let message = '저장하지 못했습니다. 네트워크 상태를 확인하고 다시 시도하세요. 작성 내용은 유지됩니다.';
+        if (e instanceof UserError) message = e.message;
+        else if (isDenied(e)) message = '글 또는 첨부파일을 저장할 권한이 없습니다. 작성 내용은 유지됩니다.';
+        setStatus(status, message, 'error');
       } finally {
-        btn.innerText = '발행하기';
-        btn.disabled = false;
+        button.disabled = false;
         cancel.disabled = false;
+        button.textContent = editing ? '수정 저장' : '발행하기';
       }
     }
 
-    function startEditPost(post) {
-      if (!isAdminMode || !isLoggedIn) return;
-      window.location.hash = '#write';
-      document.getElementById('write-box').classList.remove('hidden');
-      document.getElementById('write-form-title').innerText = '글 수정하기';
-      document.getElementById('edit-post-id').value = post.id;
-      document.getElementById('post-category').value = post.category;
-      document.getElementById('post-title').value = post.title;
-      document.getElementById('post-content').value = post.content;
-      window.scrollTo(0, 0);
+    function cancelWrite() {
+      const route = getRoute();
+      if (route.name === 'edit') {
+        location.replace(`#post/${route.id}`);
+        return;
+      }
+      const dirty = $('post-title').value.trim() || $('post-content').value.trim();
+      if (dirty && !confirm('작성 중인 내용을 지울까요?')) return;
+      clearDraft();
+      location.replace('#admin');
     }
 
     async function deletePost(id) {
-      if (!isAdminMode || !isLoggedIn) return;
-      if (!confirm('정말 이 글을 삭제하시겠습니까?')) return;
+      const post = findPost(id);
+      if (!loggedIn || !post) return;
+      if (!confirm(`「${post.title}」 글을 삭제할까요? 되돌릴 수 없습니다.`)) return;
+      const button = $('btn-delete');
+      button.disabled = true;
       try {
-        const { data, error } = await supabaseClient.from('posts').delete().eq('id', id).select('id');
+        const { data, error } = await db.from('posts').delete().eq('id', post.id).select('id');
         if (error) throw error;
-        if (!data || !data.length) throw new Error('삭제 권한이 없거나 이미 삭제된 글입니다.');
-        await loadPosts();
-        showListView();
-        document.getElementById('publish-status').textContent = '글이 삭제되었습니다.';
-      } catch (error) {
-        alert(error.message || '글을 삭제하지 못했습니다. 다시 로그인한 뒤 시도하세요.');
+        if (!data || !data.length) throw new UserError('삭제 권한이 없거나 이미 삭제된 글입니다.');
+        removeStoredFiles([post.image_url, post.file_url]);
+        posts = posts.filter(p => p !== post);
+        flash = '글이 삭제되었습니다.';
+        location.replace(lastList.name === 'admin' ? '#admin' : '#viewer');
+      } catch (e) {
+        setStatus($('detail-status'),
+          e instanceof UserError ? e.message : '글을 삭제하지 못했습니다. 다시 로그인한 뒤 시도하세요.', 'error');
+      } finally {
+        button.disabled = false;
       }
     }
 
-    function resetWriteForm(returnToList = true) {
-      document.getElementById('post-status').textContent = '';
-      document.getElementById('write-box').classList.add('hidden');
-      document.getElementById('write-form-title').innerText = '새 글 작성';
-      document.getElementById('edit-post-id').value = '';
-      document.getElementById('post-title').value = '';
-      document.getElementById('post-content').value = '';
-      document.getElementById('post-image').value = '';
-      document.getElementById('post-file').value = '';
-      if (returnToList && isAdminMode && isLoggedIn) window.location.hash = '#admin';
-    }
+    // ---------- 이벤트 ----------
+    window.addEventListener('hashchange', onRouteChange);
+    $('login-form').addEventListener('submit', login);
+    $('logout-btn').addEventListener('click', logout);
+    $('save-settings-btn').addEventListener('click', saveSettings);
+    $('save-post-btn').addEventListener('click', savePost);
+    $('cancel-post-btn').addEventListener('click', cancelWrite);
+    $('write-box').addEventListener('input', saveDraft);
+    $('btn-delete').addEventListener('click', e => deletePost(e.currentTarget.dataset.id));
+    $('footer-profile-img').addEventListener('error', e => show(e.currentTarget, false));
 
-    function toggleSection(id) {
-      const el = document.getElementById(id);
-      el.classList.toggle('hidden');
-    }
+    // 블로그 제목: 전체글 목록 맨 위로
+    $('blog-title').addEventListener('click', () => {
+      category = '';
+      lastList.y = 0;
+      if (getRoute().name === 'list') { render(); window.scrollTo(0, 0); }
+    });
+
+    $('category-nav').addEventListener('click', e => {
+      const button = e.target.closest('button[data-cat]');
+      if (!button) return;
+      category = button.dataset.cat;
+      renderCategories();
+      renderPostList();
+      window.scrollTo(0, 0);
+    });
+
+    $('post-list').addEventListener('click', async e => {
+      if (!e.target.closest('#retry-btn')) return;
+      postsState = 'loading';
+      renderPostList();
+      await loadPosts();
+      render();
+    });
+
+    // ---------- 시작 ----------
+    (async function init() {
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      try {
+        const { data } = await db.auth.getSession();
+        loggedIn = !!data.session;
+      } catch { loggedIn = false; }
+      // 다른 탭에서 로그인·로그아웃하거나 세션이 만료되면 화면을 맞춥니다.
+      db.auth.onAuthStateChange((_event, session) => {
+        if (!!session === loggedIn) return;
+        loggedIn = !!session;
+        render();
+      });
+
+      prevRoute = getRoute();
+      render();
+      await Promise.all([loadSettings(), loadPosts()]);
+      render();
+    })();
   </script>
 </body>
 </html>
